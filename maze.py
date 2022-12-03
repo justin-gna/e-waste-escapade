@@ -116,6 +116,3 @@ class MazeGame():
     if self.is_done():
       print("\nyou beat the level, good job!")
       print(f"you collected {self.items_collected} / {self.item_num} items")
-
-      
-if __name__ == "__main__":
