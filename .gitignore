@@ -1,0 +1,9 @@
+# ignore venv directories and files
+__pycache__/
+bin/
+include/
+lib/
+pyvenv.cfg
+
+# ignore file containing api key
+api_key.txt

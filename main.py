@@ -1,12 +1,13 @@
 # Justin G. Fr. Michael Goetz CSS
 # 4/9/2021
 # A program that lets the user play a game related to E-Waste Recycling and then allows the user to locate an E-Waste Recycling Center in their city
-
+import time
+from maze import MazeGame
+from blessed import Terminal
+import googlemaps
 
 def introduction():
     """The introduction to the game, with instructions and controls"""
-
-    import time
 
     print("Welcome to The E-Waste Escapade!")
     print("Please go fullscreen!")
@@ -78,8 +79,6 @@ def intro_level(level_num, phone_num, monitor_num, laptop_num):
   phone_num, monitor_num, laptop_num -- the amount of each item that is present in the current level
   """
 
-    import time
-
     print(f"Welcome to Level {level_num}")
     time.sleep(1)
     print("lets get it started")
@@ -102,9 +101,6 @@ def play_level(board, start_x, start_y, end_x, end_y, item_num):
   end_x, end_y -- the x and y coordinates in the 2D list of where the end of the level is
   item_num -- the amount of items the player can collect in the current level
   """
-
-    from maze import MazeGame
-    from blessed import Terminal
     # this object allows reading user input of a single key without needing to press enter
     term = Terminal()
 
@@ -143,11 +139,22 @@ def play_level(board, start_x, start_y, end_x, end_y, item_num):
         return True
 
 
+def get_api_key():
+    api_key = ""
+    try:
+        with open("api_key.txt", "r") as api_file:
+            api_key = api_file.readline().strip()
+            return api_key
+    except FileNotFoundError:
+        print("api_key.txt does not exist, you must create your own API key through google maps platform")
+        print("This program will exit")
+        return api_key
+
+
 def find_e_waste_center():
     """Finds an E-Waste Recycling Center based on a user inputted city"""
 
     # importing the google maps module in order to use the google maps api
-    import googlemaps
 
     user_response = input(
         "Now that you have completed E-Waste Escapade, would you like to locate an E-Waste Recycling Center near you? "
@@ -162,9 +169,13 @@ def find_e_waste_center():
 
     while user_response[0].lower() == "y":
 
+        api_key = get_api_key()
+        if not api_key:
+            quit()
+
         # google maps client can only be used with an api key so this line is used to create the gmaps object using the api key
         gmaps = googlemaps.Client(
-            key="AIzaSyBwrcmiIReWuZ0EtNkTf66Q1iR4BZItdnw")
+            key=api_key)
         user_city = input(
             "Enter the name of your city so we can find an E-Waste Recycling Center near you:\n"
         )
@@ -175,8 +186,8 @@ def find_e_waste_center():
           search_result = gmaps.find_place(["e-waste recycling in " + user_city],
                                            "textquery",
                                            ["name", "formatted_address"])
-        except Exception:
-          print("Looks like there is an API key error, please notify the developer so that he can fix this issue :)")
+        except (googlemaps.ApiError, googlemaps.TransportError, googlemaps.HTTPError, googlemaps.Timeout, TimeoutError):
+          print("Looks like there is an API key error, try setting up your api key again")
           print("Anyways, thanks for playing!")
           quit()
 
@@ -224,8 +235,6 @@ def find_e_waste_center():
 
 def main():
     """The main method"""
-
-    import time
 
     # declaration of variables
     board_1 = []
